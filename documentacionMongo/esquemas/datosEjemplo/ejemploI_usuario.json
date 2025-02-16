@@ -1,0 +1,23 @@
+{
+  "_id": {
+    "$oid": "67ae5f79585f513b19ab00e1"
+  },
+  "nombre": "Ana López",
+  "password": "C0ntr4s3ñ4!Segura",
+  "fechaalta": {
+    "$numberLong": "1717024400000"
+  },
+  "ultimaconexion": {
+    "$numberLong": "1717053200000"
+  },
+  "avatar": {
+    "filename": "avatar-ana",
+    "mime": "image/png",
+    "imagen": {
+      "$binary": {
+        "base64": "aVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUFFQUFBQUJDQVlBQUFBZkZjU0pBQUFBRFVsRVFWUjQybVA4ei9DL0hnQUdnd0ovbEszUTZ3QUFBQUJKUlU1RXJrSmdnZz09Igog",
+        "subType": "00"
+      }
+    }
+  }
+}

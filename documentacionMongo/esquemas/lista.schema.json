@@ -1,0 +1,66 @@
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'nombre',
+      'comentario',
+      'usuario',
+      'fechacreacion',
+      'portada',
+      'canciones'
+    ],
+    properties: {
+      nombre: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 40,
+        description: 'nombre de la lista'
+      },
+      usuario: {
+        bsonType: 'objectId',
+        description: 'id del usuario'
+      },
+      comentario: {
+        bsonType: 'string',
+        maxLength: 250,
+        description: 'comentario'
+      },
+      fechacreacion: {
+        bsonType: 'long',
+        description: 'Fecha creación'
+      },
+      canciones: {
+        bsonType: 'array',
+        items: {
+          bsonType: 'objectId'
+        }
+      },
+      portada: {
+        bsonType: 'object',
+        required: [
+          'filename',
+          'imagen',
+          'mime'
+        ],
+        properties: {
+          filename: {
+            bsonType: 'string',
+            description: 'Nombre del archivo de la imagen'
+          },
+          imagen: {
+            bsonType: 'binData',
+            description: 'Imagen pequeña'
+          },
+          mime: {
+            bsonType: 'string',
+            'enum': [
+              'image/jpeg',
+              'image/png',
+              'image/gif'
+            ]
+          }
+        }
+      }
+    }
+  }
+}

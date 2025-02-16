@@ -1,0 +1,65 @@
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'nombre',
+      'password',
+      'fechaalta',
+      'listas'
+    ],
+    properties: {
+      nombre: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 40,
+        description: 'nombre del usuario'
+      },
+      password: {
+        bsonType: 'string',
+        minLength: 8,
+        description: 'password con longitud de al menos 8'
+      },
+      fechaalta: {
+        bsonType: 'long',
+        description: 'Duración con timespan'
+      },
+      ultimaconexion: {
+        bsonType: 'long',
+        description: 'Duración con timespan'
+      },
+      listas: {
+        bsonType: 'array',
+        maximum: 50,
+        items: {
+          bsonType: 'objectId'
+        }
+      },
+      avatar: {
+        bsonType: 'object',
+        required: [
+          'filename',
+          'imagen',
+          'mime'
+        ],
+        properties: {
+          filename: {
+            bsonType: 'string',
+            description: 'Nombre del archivo de la imagen'
+          },
+          imagen: {
+            bsonType: 'binData',
+            description: 'Imagen pequeña'
+          },
+          mime: {
+            bsonType: 'string',
+            'enum': [
+              'image/jpeg',
+              'image/png',
+              'image/gif'
+            ]
+          }
+        }
+      }
+    }
+  }
+}

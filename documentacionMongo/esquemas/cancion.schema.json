@@ -1,0 +1,39 @@
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'titulo',
+      'artista',
+      'comentario',
+      'duracion'
+    ],
+    properties: {
+      titulo: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 200,
+        description: 'titulo de la canción'
+      },
+      artista: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 40,
+        description: 'nombre del artista/grupo'
+      },
+      any: {
+        bsonType: 'int',
+        minimum: 1700,
+        maximum: 4000,
+        description: 'anyo de la cancion'
+      },
+      duracion: {
+        bsonType: 'int',
+        minimum: 1,
+        description: 'duración en segundos'
+      },
+      letra: {
+        bsonType: 'string'
+      }
+    }
+  }
+}
