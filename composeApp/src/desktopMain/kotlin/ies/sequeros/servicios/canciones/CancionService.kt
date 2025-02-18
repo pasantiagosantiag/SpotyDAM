@@ -7,7 +7,10 @@ import ies.sequeros.modelo.repositorios.AListasRepositorio
 
 import org.bson.types.ObjectId
 
-class CancionService( private val listaRepositorio: AListasRepositorio, private val cancionRepositorio:ACancionRepositorio) {
+class CancionService(
+    private val listaRepositorio: AListasRepositorio,
+    private val cancionRepositorio: ACancionRepositorio
+) {
     suspend fun add(item: Cancion) {
         cancionRepositorio.save(item)
         item._id = item._id
@@ -15,40 +18,51 @@ class CancionService( private val listaRepositorio: AListasRepositorio, private 
     }
 
     suspend fun remove(item: Cancion) {
-        //se elimina del usuario
-       /* var usuario = usuarioRepositorio.getById(item.usuario._id)
-        usuario?.let {
-            it.items.remove(item._id)
-            usuarioRepositorio.update(it)
-
-        }*/
-        //se elimina de la item
+        //se borra en todas las listas la canciones en que aparezca
+        var listas = listaRepositorio.getAll().filter { e ->
+            e.canciones.firstOrNull { it == item._id } != null
+        }.forEach { lista ->
+            run {
+                lista.canciones.removeIf { it == item._id }
+                listaRepositorio.save(lista)
+            }
         cancionRepositorio.remove(item)
 
     }
 
-    suspend fun addCancion( item: Cancion) {
+    //se elimina del usuario
+    /* var usuario = usuarioRepositorio.getById(item.usuario._id)
+     usuario?.let {
+         it.items.remove(item._id)
+         usuarioRepositorio.update(it)
 
-        cancionRepositorio.save(item)
-    }
+     }*/
+    //se elimina de la item
+    cancionRepositorio.remove(item)
 
-    suspend fun removeById(id: ObjectId) {
+}
 
-        cancionRepositorio.removeById(id)
+suspend fun addCancion(item: Cancion) {
 
-    }
+    cancionRepositorio.save(item)
+}
 
-    suspend fun save(item: Cancion) {
+suspend fun removeById(id: ObjectId) {
 
-        cancionRepositorio.save(item)
+    cancionRepositorio.removeById(id)
+
+}
+
+suspend fun save(item: Cancion) {
+
+    cancionRepositorio.save(item)
 
 
-    }
+}
 
 
+suspend fun getAll(): List<Cancion> {
+    return cancionRepositorio.getAll()
 
-    suspend fun getAll(): List<Cancion> {
-        return  cancionRepositorio.getAll()
-
-    }
+}
 }

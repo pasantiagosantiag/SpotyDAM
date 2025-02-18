@@ -6,16 +6,19 @@ import ies.sequeros.modelo.dto.UsuarioListaDTO
 import ies.sequeros.modelo.entidades.Cancion
 import ies.sequeros.modelo.entidades.Lista
 import ies.sequeros.modelo.entidades.Usuario
+import ies.sequeros.modelo.repositorios.ACancionRepositorio
 import ies.sequeros.modelo.repositorios.AListasRepositorio
 import ies.sequeros.modelo.repositorios.AUsuarioRepositorio
+import ies.sequeros.modelo.repositorios.mongo.MongoCancionRepositorio
 import org.bson.types.ObjectId
 
 class ListaService(
     private val usuarioRepositorio: AUsuarioRepositorio,
-    private val listaRepositorio: AListasRepositorio
+    private val listaRepositorio: AListasRepositorio,
+    private val cancionRepositorio: ACancionRepositorio
 ) {
 
-    private fun itemToDTO(item: Lista, usuario: Usuario): ListaDTO {
+    private fun itemToDTO(item: Lista, usuario: Usuario,canciones:List<Cancion>): ListaDTO {
         var DTO = ListaDTO()
         var usuarioDTO = UsuarioListaDTO()
         DTO.portada = item.portada
@@ -23,11 +26,18 @@ class ListaService(
         DTO.nombre = item.nombre
         DTO.comentario = item.comentario
         DTO.fechacreacion = item.fechacreacion
-        DTO.canciones = item.canciones
+
         usuarioDTO._id = usuario._id;
         usuarioDTO.nombre = usuario.nombre
         DTO.usuario = usuarioDTO
-
+        item.canciones.forEach { c ->
+            run {
+                var cancion = canciones.firstOrNull{ it._id == c }
+                if(cancion!=null){
+                    DTO.canciones.add(cancion)
+                }
+            }
+        }
         return DTO
     }
 
@@ -37,10 +47,12 @@ class ListaService(
         item.usuario = DTO.usuario._id;
         item.comentario = DTO.comentario;
         item.portada = DTO.portada
-        item.canciones = DTO.canciones
+
         item.fechacreacion = DTO.fechacreacion
         item.nombre = DTO.nombre
-
+        DTO.canciones.forEach{
+            item.canciones.add(it._id)
+        }
         return item
     }
 
@@ -66,7 +78,7 @@ class ListaService(
     }
 
     suspend fun addCancion(lista: Lista, cancion: Cancion) {
-        lista.canciones.remove(cancion)
+        lista.canciones.remove(cancion._id)
         listaRepositorio.save(lista)
     }
 
@@ -81,8 +93,7 @@ class ListaService(
         item2.usuario = item.usuario._id
         listaRepositorio.save(item2)
         item._id = item2._id
-
-        //se inserta en el usuario
+        //si la lista es nueva no tiene usuario asociado
         var usuario = usuarioRepositorio.getById(item.usuario._id)
         usuario?.let {
             //es nuevo
@@ -100,7 +111,7 @@ class ListaService(
         item2.usuario = usuario._id
         listaRepositorio.save(item2)
         item._id = item2._id
-        //se inserta en el usuario
+        //si la lista es nueva no tiene usuario asociado
         var usuario = usuarioRepositorio.getById(item.usuario._id)
         usuario?.let {
             //es nuevo
@@ -114,7 +125,7 @@ class ListaService(
 
     suspend fun getAll(): List<ListaDTO> {
         var items = listaRepositorio.getAll()
-
+        var canciones=cancionRepositorio.getAll()
         var itemsDTO = mutableListOf<ListaDTO>()
         items.forEach { item ->
             run {
@@ -122,7 +133,7 @@ class ListaService(
                 //almacenar y buscar primero en "cache"
                 var usuario = usuarioRepositorio.getById(item.usuario)
                 if (usuario != null)
-                    itemsDTO.add(this.itemToDTO(item, usuario))
+                    itemsDTO.add(this.itemToDTO(item, usuario,canciones))
             }
         }
         return itemsDTO

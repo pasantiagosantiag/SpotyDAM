@@ -3,6 +3,7 @@ package ies.sequeros.vistamodelo
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ies.sequeros.modelo.dto.ListaDTO
+import ies.sequeros.modelo.entidades.Cancion
 import ies.sequeros.modelo.entidades.Lista
 import ies.sequeros.modelo.entidades.Usuario
 import ies.sequeros.servicios.listas.ListaService
@@ -45,7 +46,12 @@ class ListaViewModel (private val listaService: ListaService) : ViewModel() {
         _selected.value=item
 
     }
-
+    fun addCancion(cancion: Cancion, lista:ListaDTO){
+        if(!lista.canciones.contains(cancion)){
+            lista.canciones.add(cancion)
+            save(lista)
+        }
+    }
     fun save(item: ListaDTO) {
 
         viewModelScope.launch {

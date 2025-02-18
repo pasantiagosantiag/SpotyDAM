@@ -104,7 +104,8 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
                 Updates.set("nombre",item.nombre),
                 Updates.set("comentario",item.comentario),
                 Updates.set("fechaalta",item.fechacreacion),
-                Updates.set("portada",item.portada)
+                Updates.set("portada",item.portada),
+                Updates.set("canciones",item.canciones)
             )
             collection.findOneAndUpdate(query,bson) //"{nombre:'Juan'}" )
 
@@ -123,7 +124,8 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
                 Updates.set("comentario",item.comentario),
                 Updates.set("fechaalta",item.fechacreacion),
                 Updates.set("portada",item.portada),
-                Updates.set("usuario",item.usuario)
+                Updates.set("usuario",item.usuario),
+                Updates.set("canciones",item.canciones)
 
             )
             collection.findOneAndUpdate(query,bson)

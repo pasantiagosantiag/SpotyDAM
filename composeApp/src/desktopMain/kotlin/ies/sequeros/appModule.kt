@@ -27,7 +27,7 @@ val appModule = module {
     //servicios
     single<UsuariosService> {  UsuariosService(get(),get()) }
     single<CancionService> { CancionService(get(),get()) }
-    single<ListaService> { ListaService(get(),get() ) }
+    single<ListaService> { ListaService(get(),get(),get() ) }
 
     viewModel {UsuarioViewModel(get()) }
     viewModel {ListaViewModel(get()) }

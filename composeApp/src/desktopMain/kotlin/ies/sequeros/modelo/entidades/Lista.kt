@@ -8,7 +8,7 @@ data class Lista (
     var fechacreacion:Long,
     var portada: Portada,
     var usuario: ObjectId,
-    var canciones:MutableList<Cancion>) {
+    var canciones:MutableList<ObjectId>) {
     constructor() : this(ObjectId(nuevo),"","",1L,Portada(),ObjectId(),mutableListOf())
     companion  object  {
         val nuevo="000000000000000000000000"
