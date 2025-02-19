@@ -85,7 +85,7 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
 
 ### Lista reproducción
 
-```json
+```jsonschema
 {
   $jsonSchema: {
     bsonType: 'object',
