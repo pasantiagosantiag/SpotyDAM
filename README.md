@@ -1,11 +1,198 @@
-This is a Kotlin Multiplatform project targeting Desktop.
+# Ejemplo uso MongoDB con Kotlin y Compose
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+## Arquitectura
 
+La vista a lo largo del curso:
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+ - Capa de datos. Gestiona las entidades, los DTO y los repositorios
+ - Capa de negocio/lógica. Posee los servicios, cada servicio utiliza uno o varios repositorios y otros servicios para hacer su trabajo. Además emite eventos de dominio para "avisar" al vista/vistamodelo de los cambios.
+ - Capa de vistamodelo. Su principal función es hacer reactiva la aplicación y contener la lógica relacionada con la presentación. Recibe los eventos de la capa de negocio y actualiza los datos en caso de ser necesario.
+ - Capa de presentación. Se utiliza compose.
+ 
+## MongoDB
+
+Para garantizar que los datos introducidos son correctos se definen esquemas json para cada una de las colecciones:
+ 
+### Usuario
+
+´´´ json
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'nombre',
+      'password',
+      'fechaalta',
+      'listas'
+    ],
+    properties: {
+      nombre: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 40,
+        description: 'nombre del usuario'
+      },
+      password: {
+        bsonType: 'string',
+        minLength: 8,
+        description: 'password con longitud de al menos 8'
+      },
+      fechaalta: {
+        bsonType: 'long',
+        description: 'Duración con timespan'
+      },
+      ultimaconexion: {
+        bsonType: 'long',
+        description: 'Duración con timespan'
+      },
+      listas: {
+        bsonType: 'array',
+        maximum: 50,
+        items: {
+          bsonType: 'objectId'
+        }
+      },
+      avatar: {
+        bsonType: 'object',
+        required: [
+          'filename',
+          'imagen',
+          'mime'
+        ],
+        properties: {
+          filename: {
+            bsonType: 'string',
+            description: 'Nombre del archivo de la imagen'
+          },
+          imagen: {
+            bsonType: 'binData',
+            description: 'Imagen pequeña'
+          },
+          mime: {
+            bsonType: 'string',
+            'enum': [
+              'image/jpeg',
+              'image/png',
+              'image/gif'
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+´´´
+### Lista reproducción
+
+´´´ json
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'nombre',
+      'comentario',
+      'usuario',
+      'fechacreacion',
+      'portada',
+      'canciones'
+    ],
+    properties: {
+      nombre: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 40,
+        description: 'nombre de la lista'
+      },
+      usuario: {
+        bsonType: 'objectId',
+        description: 'id del usuario'
+      },
+      comentario: {
+        bsonType: 'string',
+        maxLength: 250,
+        description: 'comentario'
+      },
+      fechacreacion: {
+        bsonType: 'long',
+        description: 'Fecha creación'
+      },
+      canciones: {
+        bsonType: 'array',
+        items: {
+          bsonType: 'objectId'
+        }
+      },
+      portada: {
+        bsonType: 'object',
+        required: [
+          'filename',
+          'imagen',
+          'mime'
+        ],
+        properties: {
+          filename: {
+            bsonType: 'string',
+            description: 'Nombre del archivo de la imagen'
+          },
+          imagen: {
+            bsonType: 'binData',
+            description: 'Imagen pequeña'
+          },
+          mime: {
+            bsonType: 'string',
+            'enum': [
+              'image/jpeg',
+              'image/png',
+              'image/gif'
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+´´´
+
+### Canción
+
+´´´ json
+{
+  $jsonSchema: {
+    bsonType: 'object',
+    required: [
+      'titulo',
+      'artista',
+      'comentario',
+      'duracion'
+    ],
+    properties: {
+      titulo: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 200,
+        description: 'titulo de la canción'
+      },
+      artista: {
+        bsonType: 'string',
+        minLength: 3,
+        maxLength: 40,
+        description: 'nombre del artista/grupo'
+      },
+      any: {
+        bsonType: 'int',
+        minimum: 1700,
+        maximum: 4000,
+        description: 'anyo de la cancion'
+      },
+      duracion: {
+        bsonType: 'int',
+        minimum: 1,
+        description: 'duración en segundos'
+      },
+      letra: {
+        bsonType: 'string'
+      }
+    }
+  }
+}
+´´´
