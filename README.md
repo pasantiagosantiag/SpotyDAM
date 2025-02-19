@@ -11,9 +11,12 @@ La vista a lo largo del curso:
  
 ## MongoDB
 
+### Esquemas
 Para garantizar que los datos introducidos son correctos se definen esquemas json para cada una de las colecciones:
  
-### Usuario
+**Usuario**
+<details>
+<summary>Esquema</summary>
 
 ```
 {
@@ -81,9 +84,16 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
     }
   }
 }
-```
 
-### Lista reproducción
+
+```
+</details>
+
+
+**Lista reproducción**
+
+<details>
+<summary>Esquema</summary>
 
 ``` 
 {
@@ -153,8 +163,11 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
   }
 }
 ```
+</details>
 
-### Canción
+**Canción**
+<details>
+<summary>Esquema</summary>
 
 ``` 
 {
@@ -197,3 +210,7 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
   }
 }
 ```
+
+</details>
+
+### Consultas y agregados
