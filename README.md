@@ -213,4 +213,61 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
 
 </details>
 
-### Consultas y agregados
+### Operaciones contra la base de datos
+
+**Selección**
+
+En el caso de seleccionar documentos de la colección se utiliza el método find:
+
+``` kotlin
+    override suspend fun getAll(): List<Cancion> {
+        if (!mongoConnection.isOpen()) {
+            mongoConnection.conect()
+        }
+        val db = mongoConnection.getDatabase(namedatabase)
+        db?.let {
+            val collection = it.getCollection<Cancion>(colectionname)
+            val doc = collection.find()
+            return doc.toList()
+        }
+        return emptyList()
+    }
+```
+
+Si es necesario unir documentos de otras colecciones, realizar operaciones como proyectar o realizar cálculos, se utilizan los agregados que son operaciones sobre
+las colecciones, de forma similar a como se realiza en programación funcional.
+
+```kotlin
+        if (!mongoConnection.isOpen()) {
+            mongoConnection.conect()
+        }
+        val db = mongoConnection.getDatabase(namedatabase)
+        db?.let {
+            val collection = it.getCollection<Usuario>(colectionname)
+            var elementos = collection.aggregate<UsuarioDTO>(
+                listOf(
+                    //final String from, final String localField, final String foreignField, final String as
+                    Aggregates.lookup("canciones", "canciones", "_id", "canciones"),
+                    Aggregates.project(
+                        Projections.fields(
+                            Projections.include(
+                                Lista::_id.name,
+                                Lista::nombre.name,
+                                Lista::usuario.name,
+                                Lista::fechacreacion.name,
+                                Lista::comentario.name,
+                                Lista::portada.name,
+                                "usuario._id",
+                                "usuario.nombre",
+                                "canciones.id",
+                                "canciones.artista",
+                                "canciones.duracion"
+                            ),
+                            // Projections.excludeId()
+                        )
+                    )
+
+                )
+            ).toList()
+```
+

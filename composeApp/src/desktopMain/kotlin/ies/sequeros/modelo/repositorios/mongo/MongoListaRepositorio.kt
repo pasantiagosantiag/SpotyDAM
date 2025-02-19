@@ -9,22 +9,20 @@ import ies.sequeros.modelo.dto.UsuarioDTO
 import ies.sequeros.modelo.entidades.Lista
 import ies.sequeros.modelo.entidades.Usuario
 import ies.sequeros.modelo.repositorios.AListasRepositorio
-
 import ies.sequeros.modelo.repositorios.MongoConnection
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.bson.types.ObjectId
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class MongoListaRepositorio(private val mongoConnection: MongoConnection) : AListasRepositorio() {
     private val namedatabase = "damplaymusic"
     private val colectionname = "listas"
     override suspend fun getByUsuario(usuario: Usuario): List<Lista> {
-      if(usuario._id != null){
-        return getByUsuario(usuario._id!!)
-      }else
-          return emptyList()
+        if (usuario._id != null) {
+            return getByUsuario(usuario._id!!)
+        } else
+            return emptyList()
     }
 
     override suspend fun getByUsuario(id: ObjectId): List<Lista> {
@@ -36,16 +34,18 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
             val collection = it.getCollection<Lista>(colectionname)
             val query = Filters.eq("usuario", id)
 
-            return  collection.find(query).toList()
+            return collection.find(query).toList()
 
         }
         return listOf()
     }
-    override suspend fun removeByUsuario(usuario: Usuario){
 
-           usuario._id?.let { this.removeByUsuarioId(it) }
+    override suspend fun removeByUsuario(usuario: Usuario) {
+
+        usuario._id?.let { this.removeByUsuarioId(it) }
 
     }
+
     override suspend fun removeByUsuarioId(id: ObjectId) {
         if (!mongoConnection.isOpen()) {
             mongoConnection.conect()
@@ -55,13 +55,14 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
             val collection = it.getCollection<Lista>(colectionname)
             val query = Filters.eq("usuario", id)
 
-             collection.deleteMany(query)
+            collection.deleteMany(query)
 
         }
 
     }
+
     override suspend fun getAllMongo(): List<ListaDTO> {
-          if (!mongoConnection.isOpen()) {
+        if (!mongoConnection.isOpen()) {
             mongoConnection.conect()
         }
         val db = mongoConnection.getDatabase(namedatabase)
@@ -93,7 +94,7 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
                 )
             ).toList()
         }
-   return emptyList()
+        return emptyList()
     }
 
     override suspend fun getAll(): List<Lista> {
@@ -122,7 +123,7 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         db?.let {
             val collection = it.getCollection<Lista>(colectionname)
             val query = Filters.eq("_id", id)
-           var r= collection.deleteOne(query)
+            var r = collection.deleteOne(query)
 
         }
     }
@@ -133,7 +134,7 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         db?.let {
             val collection = it.getCollection<Lista>(colectionname)
             val query = Filters.eq("_id", id)
-            var resultado= collection.find(query) //"{nombre:'Juan'}" )
+            var resultado = collection.find(query) //"{nombre:'Juan'}" )
             return resultado.firstOrNull()
         }
         return null
@@ -144,14 +145,14 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         db?.let {
             val collection = it.getCollection<Lista>(colectionname)
             val query = Filters.eq("_id", item._id)
-            var bson= Updates.combine(
-                Updates.set("nombre",item.nombre),
-                Updates.set("comentario",item.comentario),
-                Updates.set("fechaalta",item.fechacreacion),
-                Updates.set("portada",item.portada),
-                Updates.set("canciones",item.canciones)
+            var bson = Updates.combine(
+                Updates.set("nombre", item.nombre),
+                Updates.set("comentario", item.comentario),
+                Updates.set("fechaalta", item.fechacreacion),
+                Updates.set("portada", item.portada),
+                Updates.set("canciones", item.canciones)
             )
-            collection.findOneAndUpdate(query,bson) //"{nombre:'Juan'}" )
+            collection.findOneAndUpdate(query, bson) //"{nombre:'Juan'}" )
 
         }
 
@@ -163,16 +164,16 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         db?.let {
             val collection = it.getCollection<Lista>(colectionname)
             val query = Filters.eq("_id", id)
-            var bson= Updates.combine(
-                Updates.set("nombre",item.nombre),
-                Updates.set("comentario",item.comentario),
-                Updates.set("fechaalta",item.fechacreacion),
-                Updates.set("portada",item.portada),
-                Updates.set("usuario",item.usuario),
-                Updates.set("canciones",item.canciones)
+            var bson = Updates.combine(
+                Updates.set("nombre", item.nombre),
+                Updates.set("comentario", item.comentario),
+                Updates.set("fechaalta", item.fechacreacion),
+                Updates.set("portada", item.portada),
+                Updates.set("usuario", item.usuario),
+                Updates.set("canciones", item.canciones)
 
             )
-            collection.findOneAndUpdate(query,bson)
+            collection.findOneAndUpdate(query, bson)
 
         }
     }
@@ -193,12 +194,12 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
 
     override suspend fun save(item: Lista) {
 
-       if(item._id==null) {
-           //se le pone un id nuevo
-           item._id=ObjectId()
-           this.add(item)
-       }else
-           this.update(item)
+        if (item._id == null) {
+            //se le pone un id nuevo
+            item._id = ObjectId()
+            this.add(item)
+        } else
+            this.update(item)
     }
 
 
