@@ -271,3 +271,62 @@ las colecciones, de forma similar a como se realiza en programación funcional.
             ).toList()
 ```
 
+**Inserción**
+
+``` Kotlin
+ override suspend fun add(item: Lista) {
+        if (!mongoConnection.isOpen()) {
+            mongoConnection.conect()
+        }
+        val db = mongoConnection.getDatabase(namedatabase)
+        db?.let {
+            val collection = it.getCollection<Lista>(colectionname)
+            val doc = collection.insertOne(item)
+        }
+    }
+```
+
+**Actualización**
+
+``` kotlin
+    override suspend fun update(item: Lista) {
+        val db = mongoConnection.getDatabase(namedatabase)
+        db?.let {
+            val collection = it.getCollection<Lista>(colectionname)
+            val query = Filters.eq("_id", item._id)
+            var bson = Updates.combine(
+                Updates.set("nombre", item.nombre),
+                Updates.set("comentario", item.comentario),
+                Updates.set("fechaalta", item.fechacreacion),
+                Updates.set("portada", item.portada),
+                Updates.set("usuario", item.usuario),
+                Updates.set("canciones", item.canciones)
+            )
+            collection.findOneAndUpdate(query, bson) //"{nombre:'Juan'}" )
+        }
+
+    }
+```
+
+**Borrado**
+
+``` kotlin
+    override suspend fun remove(item: Lista) {
+        item._id?.let { this.removeById(it) }
+    }
+
+   
+    override suspend fun removeById(id: ObjectId) {
+        if (!mongoConnection.isOpen()) {
+            mongoConnection.conect()
+        }
+        val db = mongoConnection.getDatabase(namedatabase)
+        db?.let {
+            val collection = it.getCollection<Lista>(colectionname)
+            val query = Filters.eq("_id", id)
+            var r = collection.deleteOne(query)
+
+        }
+    }
+
+```

@@ -114,7 +114,7 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         item._id?.let { this.removeById(it) }
     }
 
-    @OptIn(ExperimentalUuidApi::class)
+
     override suspend fun removeById(id: ObjectId) {
         if (!mongoConnection.isOpen()) {
             mongoConnection.conect()
@@ -150,10 +150,10 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
                 Updates.set("comentario", item.comentario),
                 Updates.set("fechaalta", item.fechacreacion),
                 Updates.set("portada", item.portada),
+                Updates.set("usuario", item.usuario),
                 Updates.set("canciones", item.canciones)
             )
             collection.findOneAndUpdate(query, bson) //"{nombre:'Juan'}" )
-
         }
 
     }
@@ -184,12 +184,9 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         }
         val db = mongoConnection.getDatabase(namedatabase)
         db?.let {
-
             val collection = it.getCollection<Lista>(colectionname)
             val doc = collection.insertOne(item)
-
         }
-
     }
 
     override suspend fun save(item: Lista) {
