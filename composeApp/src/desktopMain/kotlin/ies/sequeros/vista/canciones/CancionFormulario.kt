@@ -12,9 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import ies.sequeros.modelo.dto.UsuarioDTO
 import ies.sequeros.modelo.entidades.Cancion
 import ies.sequeros.vistamodelo.CancionesViewModel
 import org.koin.compose.viewmodel.koinViewModel
+import java.time.LocalDateTime
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 
@@ -25,10 +27,10 @@ fun CancionFormulario(
     editable: State<Boolean>,
     save: (item: Cancion) -> Unit,
     atras: () -> Unit,
-    vm: CancionesViewModel = koinViewModel()
+    vm: CancionesViewModel //= koinViewModel()
 ) {
     // Estados para los campos
-    val selected by vm.selected.collectAsState()
+    //val selected by vm.selected.collectAsState()
     var titulo by remember { mutableStateOf("") }
     var artista by remember { mutableStateOf("") }
     var comentario by remember { mutableStateOf("") }
@@ -45,14 +47,22 @@ fun CancionFormulario(
     }
 
     //cambio del selected en el viewModel
-    LaunchedEffect(selected) {
-        titulo = selected.titulo
-        artista = selected.artista
-        comentario = selected.comentario
-        duracion = selected.duracion
-        anyo = selected.anyo
-        letra = selected.letra
+    LaunchedEffect(vm._selected.collectAsState()) {
+        titulo = vm._selected.value.titulo
+        artista = vm._selected.value.artista
+        comentario =vm._selected.value.comentario
+        duracion = vm._selected.value.duracion
+        anyo = vm._selected.value.anyo
+        letra = vm._selected.value.letra
 
+    }
+    fun clear() {
+        titulo = ""
+        artista = ""
+        comentario =""
+        duracion = 0
+        anyo = 0
+        letra = ""
     }
     Box() {
         Column(
@@ -116,7 +126,7 @@ fun CancionFormulario(
                 Button(
                     onClick = {
                         var item = Cancion();
-                        item._id = selected._id
+                        item._id = vm._selected.value._id
                         item.titulo = titulo
                         item.comentario = comentario
                         item.anyo = anyo
@@ -125,6 +135,8 @@ fun CancionFormulario(
                         item.artista = artista
 
                         vm.save(item)
+                        clear()
+                        atras()
 
                     },
                     //si se está en modo edición y formulario corrrecto
@@ -138,6 +150,8 @@ fun CancionFormulario(
                 }
                 Button(
                     onClick = {
+                        clear()
+
                         atras()
                     },
                     modifier = Modifier.padding(start = 10.dp),

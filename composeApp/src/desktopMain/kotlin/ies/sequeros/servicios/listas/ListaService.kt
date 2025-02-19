@@ -11,12 +11,15 @@ import ies.sequeros.modelo.repositorios.ACancionRepositorio
 import ies.sequeros.modelo.repositorios.AListasRepositorio
 import ies.sequeros.modelo.repositorios.AUsuarioRepositorio
 import ies.sequeros.modelo.repositorios.mongo.MongoCancionRepositorio
+import ies.sequeros.servicios.eventsbus.DomainEvent
+import ies.sequeros.servicios.eventsbus.EventBus
 import org.bson.types.ObjectId
 
 class ListaService(
     private val usuarioRepositorio: AUsuarioRepositorio,
     private val listaRepositorio: AListasRepositorio,
-    private val cancionRepositorio: ACancionRepositorio
+    private val cancionRepositorio: ACancionRepositorio,
+    private val eventBus: EventBus
 ) {
 
     private fun itemToDTO(item: Lista, usuario: Usuario,canciones:List<Cancion>): ListaDTO {
@@ -51,7 +54,8 @@ class ListaService(
 
     private fun DTOToItem(DTO: ListaDTO): Lista {
         var item = Lista()
-        item._id = DTO._id!!;
+        if(DTO._id!=null)
+            item._id = DTO._id!!;
         item.usuario = DTO.usuario._id!!;
         item.comentario = DTO.comentario;
         item.portada = DTO.portada
@@ -67,6 +71,16 @@ class ListaService(
         var item = DTOToItem(lista)
         listaRepositorio.save(item)
         lista._id = item._id
+        //si la lista es nueva no tiene usuario asociado
+        var usuario = usuarioRepositorio.getById(lista.usuario._id!!)
+        usuario?.let {
+            //es nuevo
+            if (usuario.listas.firstOrNull { it == item._id } == null) {
+                it.listas.add(item._id!!)
+                usuarioRepositorio.update(it)
+            }
+        }
+        eventBus.sendEvent(DomainEvent.ListaAdded(item))
 
     }
 
@@ -81,6 +95,7 @@ class ListaService(
         }
         //se elimina de la lista
         listaRepositorio.remove(item)
+        eventBus.sendEvent(DomainEvent.ListaDeleted(item))
 
     }
 
@@ -98,37 +113,16 @@ class ListaService(
     suspend fun save(item: ListaDTO) {
         var item2 = DTOToItem(item)
         item2.usuario = item.usuario._id!!
-        listaRepositorio.save(item2)
-        item._id = item2._id
-        //si la lista es nueva no tiene usuario asociado
-        var usuario = usuarioRepositorio.getById(item.usuario._id!!)
-        usuario?.let {
-            //es nuevo
-            if (usuario.listas.firstOrNull { it == item._id } == null) {
-                it.listas.add(item._id!!)
-                usuarioRepositorio.update(it)
-            }
+        if(item._id==null){
+            this.add(item)
+        }else {
+            listaRepositorio.save(item2)
 
-        }
-
-    }
-
-    suspend fun save(item: ListaDTO, usuario: UsuarioDTO) {
-        var item2 = DTOToItem(item)
-        item2.usuario = usuario._id!!
-        listaRepositorio.save(item2)
-        item._id = item2._id
-        //si la lista es nueva no tiene usuario asociado
-        var usuario = usuarioRepositorio.getById(item.usuario._id!!)
-        usuario?.let {
-            //es nuevo
-            if (usuario.listas.firstOrNull { it == item._id } == null) {
-                it.listas.add(item._id!!)
-                usuarioRepositorio.update(it)
-            }
-
+            eventBus.sendEvent(DomainEvent.ListaUpdated(item2))
         }
     }
+
+
 
     suspend fun getAll(): List<ListaDTO> {
         var items = listaRepositorio.getAll()

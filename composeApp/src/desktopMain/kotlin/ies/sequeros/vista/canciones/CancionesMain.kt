@@ -1,13 +1,14 @@
 package ies.sequeros.vista.canciones
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -24,22 +25,24 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import ies.sequeros.modelo.dto.ListaDTO
 import ies.sequeros.modelo.entidades.Cancion
-
 import ies.sequeros.vistamodelo.CancionesViewModel
 import ies.sequeros.vistamodelo.ListaViewModel
-import kotlinx.coroutines.flow.StateFlow
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun CancionesMain(modifier: Modifier = Modifier, vm: CancionesViewModel = koinViewModel(),listavm:ListaViewModel = koinViewModel()) {
+fun CancionesMain(
+    modifier: Modifier = Modifier,
+    vm: CancionesViewModel = koinViewModel(),
+    listavm: ListaViewModel = koinViewModel()
+) {
     val navigator = rememberListDetailPaneScaffoldNavigator<Cancion>()
     val navController = rememberNavController()
 
     val elementos = vm.items.collectAsState()
-    val formularioEditable = remember { mutableStateOf(false)
+    val formularioEditable = remember {
+        mutableStateOf(false)
     }
     val isListAndDetailVisible =
         navigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail] == PaneAdaptedValue.Expanded && navigator.scaffoldValue[ListDetailPaneScaffoldRole.List] == PaneAdaptedValue.Expanded
@@ -68,11 +71,11 @@ fun CancionesMain(modifier: Modifier = Modifier, vm: CancionesViewModel = koinVi
 
                     Text("Canciones")
 
-                   CancionBuscador(
-                       modifier = Modifier,
-                       vm.buscadortitulo
+                    CancionBuscador(
+                        modifier = Modifier,
+                        vm.buscadortitulo
 
-                   )
+                    )
                 } else
 
                     Text("Editor de listas")
@@ -98,8 +101,10 @@ fun CancionesMain(modifier: Modifier = Modifier, vm: CancionesViewModel = koinVi
                                     ver = {
                                         run {
                                             vm.setSelected(elementos.value.get(it))
-                                            formularioEditable.value = false
-navController.navigate("canciones")
+
+                                            vm._selected.value=elementos.value[0]
+                                             formularioEditable.value = false
+                                            navController.navigate("canciones")
                                             navigator.navigateTo(
                                                 ListDetailPaneScaffoldRole.Detail,
                                                 elementos.value.get(it)
@@ -107,7 +112,8 @@ navController.navigate("canciones")
                                         }
                                     }, editar = {
                                         run {
-                                            vm.setSelected(elementos.value.get(it))
+                                            var tempo = elementos.value.get(it)
+                                            vm.setSelected(tempo)
                                             formularioEditable.value = true
                                             navController.navigate("canciones")
                                             navigator.navigateTo(
@@ -121,7 +127,7 @@ navController.navigate("canciones")
                                         }
                                     },
                                     addLista = {
-                                        run{
+                                        run {
                                             vm.setSelected(elementos.value.get(it))
                                             navController.navigate("seleccionarlista")
                                             navigator.navigateTo(
@@ -145,19 +151,18 @@ navController.navigate("canciones")
                         composable("canciones") {
                             CancionFormulario(expandido = true, editable = formularioEditable, save = {
                                 // vm.save(it)
-                                vm.unSelect()
+                                //vm.unSelect()
                                 if (navigator.canNavigateBack()) navigator.navigateBack()
 
                             }, atras = {
                                 //run {
                                 if (navigator.canNavigateBack()) navigator.navigateBack()
                                 //}
-                            })
+                            }, vm=vm)
                         }
                         composable("seleccionarlista") {
 
-                            SelectorLista(listavm, vm.selected){
-                                listaDTO ->
+                            SelectorLista(listavm, vm.selected) { listaDTO ->
                                 run {
                                     listavm.addCancion(vm.selected.value, listaDTO)
                                     if (navigator.canNavigateBack()) navigator.navigateBack()

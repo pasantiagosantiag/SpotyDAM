@@ -21,7 +21,10 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
     private val namedatabase = "damplaymusic"
     private val colectionname = "listas"
     override suspend fun getByUsuario(usuario: Usuario): List<Lista> {
-      return getByUsuario(usuario._id)
+      if(usuario._id != null){
+        return getByUsuario(usuario._id!!)
+      }else
+          return emptyList()
     }
 
     override suspend fun getByUsuario(id: ObjectId): List<Lista> {
@@ -39,7 +42,8 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         return listOf()
     }
     override suspend fun removeByUsuario(usuario: Usuario){
-        this.removeByUsuarioId(usuario._id)
+
+           usuario._id?.let { this.removeByUsuarioId(it) }
 
     }
     override suspend fun removeByUsuarioId(id: ObjectId) {

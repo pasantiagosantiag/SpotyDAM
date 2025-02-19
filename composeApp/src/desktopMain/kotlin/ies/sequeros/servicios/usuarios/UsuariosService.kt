@@ -9,6 +9,8 @@ import ies.sequeros.modelo.repositorios.AListasRepositorio
 import ies.sequeros.modelo.repositorios.AUsuarioRepositorio
 import ies.sequeros.modelo.repositorios.mongo.MongoListaRepositorio
 import ies.sequeros.modelo.repositorios.mongo.MongoUsuarioRepositorio
+import ies.sequeros.servicios.eventsbus.DomainEvent
+import ies.sequeros.servicios.eventsbus.EventBus
 import org.bson.BsonArray
 import org.bson.BsonBinary
 import org.bson.BsonDocument
@@ -19,7 +21,10 @@ import org.bson.types.Binary
 import org.bson.types.ObjectId
 import org.litote.kmongo.MongoOperator
 
-class UsuariosService(val usuarioRepositorio: AUsuarioRepositorio, val listasRepositorio: AListasRepositorio) {
+class UsuariosService(val usuarioRepositorio: AUsuarioRepositorio,
+                      val listasRepositorio: AListasRepositorio,
+    val eventBus: EventBus
+) {
     private val conAgregados=true
     private fun UsuarioToUsuarioDTO(usuario: Usuario,lista:List<Lista>): UsuarioDTO {
         var usuarioDTO = UsuarioDTO()
@@ -87,11 +92,14 @@ class UsuariosService(val usuarioRepositorio: AUsuarioRepositorio, val listasRep
     }
     suspend fun remove(usuario: Usuario) {
         usuarioRepositorio.remove(usuario)
+        eventBus.sendEvent(DomainEvent.UserDeleted(usuario))
        
     }
     suspend fun removeById(id: ObjectId) {
         usuarioRepositorio.removeById(id)
         listasRepositorio.removeByUsuarioId(id)
+        eventBus.sendEvent(DomainEvent.UsuarioDeletedById(id))
+
     }
     suspend fun save(usuario: Usuario):UsuarioDTO {
         usuarioRepositorio.save(usuario)

@@ -36,7 +36,7 @@ fun ListaItem(
 ) {
     Row(modifier = Modifier.fillMaxWidth()) {
         val decodedBytes = Base64.decode(item.portada.imagen.data)
-        var bitmap = ImageIO.read(ByteArrayInputStream(decodedBytes)).toBitmap()
+            var bitmap = ImageIO.read(ByteArrayInputStream(decodedBytes)).toBitmap()
         Image(bitmap.toBufferedImage().toPainter(), item.nombre, modifier = Modifier.size(48.dp))
 
         Text("${item.nombre}( ${item.canciones.size} )${item._id}", modifier = Modifier.clickable { ver() }.weight(0.40f))

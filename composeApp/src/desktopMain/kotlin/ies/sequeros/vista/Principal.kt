@@ -32,7 +32,7 @@ enum class AppDestinations(
     USUARIOS("Usuarios", Icons.Filled.Person, "Usuarios", true),
     LISTAS("Listas", Icons.Filled.ViewList, "Listas", true),
     CANCIONES("Canciones", Icons.Filled.MusicNote, "Canciones", true),
-    GRAFICOS("Estadísticas", Icons.Filled.BarChart, "Estadísticas", false),
+   // GRAFICOS("Estadísticas", Icons.Filled.BarChart, "Estadísticas", false),
     SALIR("Salir", Icons.Filled.Logout, "Salir", true)
 }
 
@@ -87,8 +87,8 @@ fun Principal(modifier: Modifier = Modifier, salir: () -> Unit) {
                         AppDestinations.USUARIOS -> { UsuarioMain()  }
                         AppDestinations.LISTAS -> { ListasMain() }
                         AppDestinations.CANCIONES -> { CancionesMain() }
-                        AppDestinations.GRAFICOS -> { Bienvenida() }
-                        AppDestinations.SALIR -> { Bienvenida() }
+                       // AppDestinations.GRAFICOS -> { Bienvenida() }
+                        AppDestinations.SALIR -> { salir()} // Bienvenida() }
                     }
 
                 }

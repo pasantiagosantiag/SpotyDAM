@@ -27,12 +27,12 @@ val appModule = module {
     //bus de eventos de la capa de negocio/servicios
     single { EventBus() }
     //servicios
-    single<UsuariosService> {  UsuariosService(get(),get()) }
-    single<CancionService> { CancionService(get(),get()) }
-    single<ListaService> { ListaService(get(),get(),get() ) }
+    single<UsuariosService> {  UsuariosService(get(),get(),get()) }
+    single<CancionService> { CancionService(get(),get(),get()) }
+    single<ListaService> { ListaService(get(),get(),get(),get() ) }
 
-    viewModel {UsuarioViewModel(get()) }
-    viewModel {ListaViewModel(get()) }
+    viewModel {UsuarioViewModel(get(),get()) }
+    viewModel {ListaViewModel(get(),get()) }
     viewModel {CancionesViewModel(get()) }
 
     //viewModel { SalaViewModel(get()) }

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class CancionesViewModel (private val cancionService: CancionService) : ViewModel() {
-    private val _selected = MutableStateFlow(Cancion())
+    var _selected = MutableStateFlow(Cancion())
     private var _items = MutableStateFlow<MutableList<Cancion>>(mutableListOf())
 
     val selected: StateFlow<Cancion> = _selected
@@ -33,11 +33,12 @@ class CancionesViewModel (private val cancionService: CancionService) : ViewMode
         started = SharingStarted.Lazily,
         initialValue = _items.value
     )
-
+var tempo=1.0
     init {
         viewModelScope.launch {
             _items.value = cancionService.getAll().toMutableList()
         }
+        tempo=Math.random()
     }
     fun unSelect(){
         _selected.value = Cancion()

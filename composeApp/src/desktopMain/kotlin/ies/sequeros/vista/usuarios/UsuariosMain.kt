@@ -110,7 +110,8 @@ fun UsuarioMain(modifier: Modifier = Modifier, vm: UsuarioViewModel = koinViewMo
                                         }
                                     }, borrar = {
                                         run {
-                                            vm.remove(elementos.value.get(it))
+                                            var usuario=elementos.value.get(it)
+                                            vm.remove(usuario)
                                         }
                                     })
 

@@ -39,7 +39,7 @@ class MongoUsuarioRepositorio(private val mongoConnection: MongoConnection) : AU
     }
 
     override suspend fun remove(item: Usuario) {
-        this.removeById(item._id)
+        item._id?.let { this.removeById(it) }
     }
 
     @OptIn(ExperimentalUuidApi::class)

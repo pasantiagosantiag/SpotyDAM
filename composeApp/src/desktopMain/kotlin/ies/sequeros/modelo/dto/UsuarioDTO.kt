@@ -3,7 +3,7 @@ import org.litote.kmongo.*
 
 import ies.sequeros.modelo.entidades.Avatar
 import ies.sequeros.modelo.entidades.Portada
-import ies.sequeros.modelo.entidades.Usuario.Companion.nuevo
+
 import kotlinx.serialization.Serializable
 import org.bson.types.ObjectId
 

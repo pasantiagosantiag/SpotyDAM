@@ -9,26 +9,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.ViewList
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.toPainter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ies.sequeros.modelo.entidades.Usuario
 import ies.sequeros.vista.commons.DatePickerFieldToModal
-import ies.sequeros.vista.listas.ListaItem
 import ies.sequeros.vistamodelo.UsuarioViewModel
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerMode
 import io.github.vinceglb.filekit.core.PickerType
 import kotlinx.coroutines.runBlocking
 import org.bson.types.Binary
-import org.bson.types.ObjectId
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skiko.toBitmap
 import org.jetbrains.skiko.toBufferedImage
@@ -64,15 +60,17 @@ fun UsuarioFormulario(
     var imageMime by remember { mutableStateOf<String?>("") }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     //boton guardar activo
-    val enabled by  remember {  derivedStateOf {
-        nombre.length>5 && password.length>=8  && imagenName!="" && bitmap!=null
-    } }
+    val enabled by remember {
+        derivedStateOf {
+            nombre.length > 5 && password.length >= 8 && imagenName != "" && bitmap != null
+        }
+    }
     val launcher = rememberFilePickerLauncher(
         type = PickerType.Image, //ImageAndVideo,
         mode = PickerMode.Single, //.Multiple(),
         title = "Seleccionar imagen",
     ) { file ->
-        var     f = file?.path?.let { File(it) }
+        var f = file?.path?.let { File(it) }
         if (f != null) {
             //se codifica
             imagenString = Base64.encode(f.readBytes())
@@ -108,11 +106,26 @@ fun UsuarioFormulario(
         if (selected.avatar.imagen != null && selected.avatar.mime != "") {
             val decodedBytes = Base64.decode(selected.avatar.imagen.data)
             bitmap = ImageIO.read(ByteArrayInputStream(decodedBytes)).toBitmap()
-            imageMime=selected.avatar.mime
+            imageMime = selected.avatar.mime
             imagenName = selected.avatar.filename
         } else {
             bitmap = null
         }
+    }
+
+    fun clear() {
+        nombre = ""
+        password = ""
+        fechaultimaconexion.value = LocalDateTime.now()
+        fechaalta.value = LocalDateTime.now()
+
+        bitmap = null
+        imagenString = ""
+
+        imageMime = ""
+        imagenName = ""
+
+
     }
     Box() {
         Column(
@@ -173,20 +186,10 @@ fun UsuarioFormulario(
                 }
                 Button(
                     onClick = {
-
-                    }, enabled = (selected._id.toString()!=null) && enabled
-
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ViewList,
-                        contentDescription = "Listas",
-                    )
-                }
-                Button(
-                    onClick = {
                         var usuario = Usuario();
                         //para ver si es alta o modificación
-                        usuario._id= selected._id!!
+                        if (selected._id != null)
+                            usuario._id = selected._id!!
                         usuario.nombre = nombre;
                         usuario.password = password;
                         usuario.ultimaconexion = fechaultimaconexion.value.toEpochSecond(ZoneOffset.UTC)
@@ -195,6 +198,8 @@ fun UsuarioFormulario(
                         usuario.avatar.mime = imageMime.toString();
                         usuario.avatar.filename = imagenName.toString()
                         vm.save(usuario)
+                        clear()
+                        atras()
 
                     },
                     //si se está en modo edición y formulario corrrecto
@@ -208,6 +213,7 @@ fun UsuarioFormulario(
                 }
                 Button(
                     onClick = {
+                        clear()
                         atras()
                     },
                     modifier = Modifier.padding(start = 10.dp),

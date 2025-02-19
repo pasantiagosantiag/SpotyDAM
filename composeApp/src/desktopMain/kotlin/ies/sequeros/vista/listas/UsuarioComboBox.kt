@@ -21,15 +21,15 @@ fun UsuarioComboBox(items: State<List<UsuarioDTO>?>, item: State<UsuarioDTO>, al
 
 
     // State to manage the selected item and menu visibility
-    var selectedUsuario by remember { mutableStateOf<UsuarioDTO?>(item.value) }
+   // var selectedUsuario by remember { mutableStateOf<UsuarioDTO?>(item.value) }
 
     var expanded by remember { mutableStateOf(false) }
     LaunchedEffect(item) {
-       item.let {
-            selectedUsuario = it.value
+       //item.let {
+       //     selectedUsuario = it.value
 
 
-        }
+       // }
 
     }
 
@@ -38,7 +38,7 @@ fun UsuarioComboBox(items: State<List<UsuarioDTO>?>, item: State<UsuarioDTO>, al
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
         // Textfield that shows the selected item or a hint
         TextField(
-            value = selectedUsuario?.nombre ?: "Selecciona un usuario",
+            value = item.value?.nombre ?: "Selecciona un usuario",
             onValueChange = {
 
             },
@@ -64,7 +64,7 @@ fun UsuarioComboBox(items: State<List<UsuarioDTO>?>, item: State<UsuarioDTO>, al
                 DropdownMenuItem(
                     onClick = {
                         run {
-                            selectedUsuario = item
+                           // selectedUsuario = item
                              alcambiar(item)
                             expanded = false
                         }
