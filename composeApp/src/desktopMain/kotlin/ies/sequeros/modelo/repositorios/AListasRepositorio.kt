@@ -1,5 +1,7 @@
 package ies.sequeros.modelo.repositorios
 
+import ies.sequeros.modelo.dto.ListaDTO
+import ies.sequeros.modelo.dto.UsuarioDTO
 import ies.sequeros.modelo.entidades.Lista
 import ies.sequeros.modelo.entidades.Usuario
 import org.bson.types.ObjectId
@@ -12,4 +14,6 @@ abstract class AListasRepositorio: IRepositorio<Lista,ObjectId> {
     abstract suspend fun getByUsuario(id:ObjectId): List<Lista>
     abstract suspend fun removeByUsuario(usuario: Usuario)
     abstract suspend fun removeByUsuarioId(id:ObjectId)
+    abstract suspend fun getAllMongo(): List<ListaDTO>// List<BsonDocument>
+
 }

@@ -1,10 +1,10 @@
 package ies.sequeros.vista.listas
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
@@ -21,12 +21,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ies.sequeros.modelo.dto.ListaDTO
 import ies.sequeros.modelo.entidades.Lista
 import ies.sequeros.vista.Bienvenida
 import ies.sequeros.vistamodelo.ListaViewModel
 import org.koin.compose.viewmodel.koinViewModel
+
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -120,7 +122,10 @@ fun ListasMain(modifier: Modifier = Modifier, vm: ListaViewModel = koinViewModel
                     }
                 },
                 detailPane = {
+                    Column(
+                        modifier = Modifier
 
+                    ){
                     ListaFormulario(expandido = true, editable = formularioEditable, save = {
                        // vm.save(it)
                         vm.unSelect()
@@ -131,7 +136,7 @@ fun ListasMain(modifier: Modifier = Modifier, vm: ListaViewModel = koinViewModel
                         if (navigator.canNavigateBack()) navigator.navigateBack()
                         //}
                     })
-
+                    }
 
                 })
         }

@@ -58,7 +58,7 @@ class CancionesViewModel (private val cancionService: CancionService) : ViewMode
             if(_items.value.firstOrNull { it._id.toString() == item._id.toString() } != null) {
                 //se sustituye el elementos
                 var index= nueva.indexOfFirst {
-                    it._id.equals(item._id) }
+                    it._id!!.equals(item._id) }
                 if(index!=-1) {
                     nueva[index] = (item)
                 }

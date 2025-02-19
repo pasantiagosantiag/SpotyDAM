@@ -54,7 +54,7 @@ class UsuarioViewModel (private val usuariosService: UsuariosService) : ViewMode
             if(_usuarios.value.firstOrNull { it._id.toString() == item._id.toString() } != null) {
                 //se sustituye el elementos
                 var index= nueva.indexOfFirst {
-                    it._id.equals(item._id) }
+                    it._id!!.equals(item._id) }
                 if(index!=-1) {
                     nueva[index] = (itemDTO)
                 }
@@ -73,7 +73,7 @@ class UsuarioViewModel (private val usuariosService: UsuariosService) : ViewMode
     }
     fun remove(item: UsuarioDTO) {
         viewModelScope.launch {
-            usuariosService.removeById(item._id)
+            usuariosService.removeById(item._id!!)
             _usuarios.value = _usuarios.value.filter { it != item }.toMutableList()
         }
     }

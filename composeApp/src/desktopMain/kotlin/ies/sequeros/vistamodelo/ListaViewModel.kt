@@ -2,6 +2,7 @@ package ies.sequeros.vistamodelo
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ies.sequeros.modelo.dto.CancionListaDTO
 import ies.sequeros.modelo.dto.ListaDTO
 import ies.sequeros.modelo.entidades.Cancion
 import ies.sequeros.modelo.entidades.Lista
@@ -47,8 +48,9 @@ class ListaViewModel (private val listaService: ListaService) : ViewModel() {
 
     }
     fun addCancion(cancion: Cancion, lista:ListaDTO){
-        if(!lista.canciones.contains(cancion)){
-            lista.canciones.add(cancion)
+        var cancionDTO=CancionListaDTO(cancion._id,cancion.titulo,cancion.artista,cancion.duracion)
+        if(!lista.canciones.contains(cancionDTO)){
+            lista.canciones.add(cancionDTO)
             save(lista)
         }
     }
@@ -62,7 +64,7 @@ class ListaViewModel (private val listaService: ListaService) : ViewModel() {
             if(_items.value.firstOrNull { it._id.toString() == item._id.toString() } != null) {
                 //se sustituye el elementos
                 var index= nueva.indexOfFirst {
-                    it._id.equals(item._id) }
+                    it._id!!.equals(item._id) }
                 if(index!=-1) {
                     nueva[index] = (item)
                 }

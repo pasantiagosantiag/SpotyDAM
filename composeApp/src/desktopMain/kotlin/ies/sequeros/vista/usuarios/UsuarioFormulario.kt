@@ -16,9 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.toPainter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ies.sequeros.modelo.entidades.Usuario
 import ies.sequeros.vista.commons.DatePickerFieldToModal
+import ies.sequeros.vista.listas.ListaItem
 import ies.sequeros.vistamodelo.UsuarioViewModel
 import io.github.vinceglb.filekit.compose.rememberFilePickerLauncher
 import io.github.vinceglb.filekit.core.PickerMode
@@ -171,7 +174,7 @@ fun UsuarioFormulario(
                 Button(
                     onClick = {
 
-                    }, enabled = (selected._id.toString()!=Usuario.nuevo) && enabled
+                    }, enabled = (selected._id.toString()!=null) && enabled
 
                 ) {
                     Icon(
@@ -183,7 +186,7 @@ fun UsuarioFormulario(
                     onClick = {
                         var usuario = Usuario();
                         //para ver si es alta o modificación
-                        usuario._id=selected._id
+                        usuario._id= selected._id!!
                         usuario.nombre = nombre;
                         usuario.password = password;
                         usuario.ultimaconexion = fechaultimaconexion.value.toEpochSecond(ZoneOffset.UTC)
@@ -216,23 +219,26 @@ fun UsuarioFormulario(
                     )
                 }
             }
-
-
-
-
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.Start),
 
-                    .alpha(if (editable.value == true) 1.0f else 0.0f),
-                horizontalArrangement = Arrangement.Center, // Centers content horizontally
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // if (!expandido)
+                ) {
+                Text("Listas", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
 
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    selected.listas.forEach {
 
+                        Text(" ${it.nombre}")
+
+                    }
+                }
             }
+
 
         }
     }

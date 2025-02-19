@@ -3,6 +3,7 @@ package ies.sequeros.vista.listas
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -16,7 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.toPainter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.sqllitecomposecine.ui.componentes.sesiones.UsuarioComboBox
 import ies.sequeros.modelo.dto.ListaDTO
 import ies.sequeros.modelo.dto.UsuarioDTO
@@ -44,6 +47,7 @@ import java.time.ZoneOffset
 import javax.imageio.ImageIO
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.math.exp
 
 
 @OptIn(ExperimentalEncodingApi::class, ExperimentalMaterial3Api::class)
@@ -61,13 +65,14 @@ fun ListaFormulario(
     var nombre by remember { mutableStateOf("") }
     var comentario by remember { mutableStateOf("") }
     var fechacreacion = remember { mutableStateOf(LocalDateTime.now()) }
-
     var imagenString by remember { mutableStateOf<String?>("") }
     var imagenName by remember { mutableStateOf<String?>("") }
     var imageMime by remember { mutableStateOf<String?>("") }
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
 
     var usuario = remember { mutableStateOf(UsuarioDTO()) }
+
+    val scrollState = rememberScrollState()
 
     //boton guardar activo
     val enabled by  remember {  derivedStateOf {
@@ -118,7 +123,7 @@ fun ListaFormulario(
             bitmap = null
         }
     }
-    Box() {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -174,7 +179,7 @@ fun ListaFormulario(
                 Button(
                     onClick = {
 
-                    }, enabled = (selected._id.toString()!=Lista.nuevo) && enabled
+                    }, enabled = (selected._id.toString()!=null) && enabled
 
                 ) {
                     Icon(
@@ -193,9 +198,8 @@ fun ListaFormulario(
                         item.portada.imagen = Binary(imagenString!!.toByteArray())
                         item.portada.mime = imageMime.toString();
                         item.portada.filename = imagenName.toString()
-                        item.usuario= UsuarioListaDTO(usuario.value._id,usuario.value.nombre)
+                        item.usuario= usuario.value._id?.let { UsuarioListaDTO(it,usuario.value.nombre) }!!
                         vm.save(item)
-
                     },
                     //si se está en modo edición y formulario corrrecto
                     enabled = editable.value && enabled
@@ -206,6 +210,7 @@ fun ListaFormulario(
                         contentDescription = "Guardar",
                     )
                 }
+               // if(!expandido)
                 Button(
                     onClick = {
                         atras()
@@ -223,20 +228,25 @@ fun ListaFormulario(
 
 
 
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
+                    .align(Alignment.Start),
 
-                    .alpha(if (editable.value == true) 1.0f else 0.0f),
-                horizontalArrangement = Arrangement.Center, // Centers content horizontally
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // if (!expandido)
+               ) {
+                Text("Canciones", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
 
+               Column(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    selected.canciones.forEach {
+                        Text("Canción: título ${it.titulo}, artista ${it.artista}")
 
+                     }
+                }
             }
 
         }
-    }
+
 }

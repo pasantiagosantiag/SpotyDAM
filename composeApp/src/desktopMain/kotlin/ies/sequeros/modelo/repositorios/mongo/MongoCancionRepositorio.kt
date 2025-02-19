@@ -31,7 +31,7 @@ class MongoCancionRepositorio(private val mongoConnection: MongoConnection) : AC
     }
 
     override suspend fun remove(item: Cancion) {
-        this.removeById(item._id)
+        item._id?.let { this.removeById(it) }
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -113,8 +113,8 @@ class MongoCancionRepositorio(private val mongoConnection: MongoConnection) : AC
     }
 
     override suspend fun save(item: Cancion) {
-        println(item._id.toString())
-       if(item._id.toString()==Cancion.nuevo) {
+
+       if(item._id==null) {
            //se le pone un id nuevo
            item._id=ObjectId()
            this.add(item)

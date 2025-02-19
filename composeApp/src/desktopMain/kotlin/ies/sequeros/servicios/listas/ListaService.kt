@@ -1,5 +1,6 @@
 package ies.sequeros.servicios.listas
 
+import ies.sequeros.modelo.dto.CancionListaDTO
 import ies.sequeros.modelo.dto.ListaDTO
 import ies.sequeros.modelo.dto.UsuarioDTO
 import ies.sequeros.modelo.dto.UsuarioListaDTO
@@ -26,7 +27,6 @@ class ListaService(
         DTO.nombre = item.nombre
         DTO.comentario = item.comentario
         DTO.fechacreacion = item.fechacreacion
-
         usuarioDTO._id = usuario._id;
         usuarioDTO.nombre = usuario.nombre
         DTO.usuario = usuarioDTO
@@ -34,24 +34,31 @@ class ListaService(
             run {
                 var cancion = canciones.firstOrNull{ it._id == c }
                 if(cancion!=null){
-                    DTO.canciones.add(cancion)
+                    DTO.canciones.add(cancionToCancionDTO(cancion))
                 }
             }
         }
         return DTO
     }
+    private fun cancionToCancionDTO(cancion:Cancion):CancionListaDTO{
+        var item=CancionListaDTO()
+        item._id=cancion._id
+        item.titulo=cancion.titulo
+        item.artista=cancion.artista
+        item.duracion=cancion.duracion
+        return item
+    }
 
     private fun DTOToItem(DTO: ListaDTO): Lista {
         var item = Lista()
-        item._id = DTO._id;
-        item.usuario = DTO.usuario._id;
+        item._id = DTO._id!!;
+        item.usuario = DTO.usuario._id!!;
         item.comentario = DTO.comentario;
         item.portada = DTO.portada
-
         item.fechacreacion = DTO.fechacreacion
         item.nombre = DTO.nombre
         DTO.canciones.forEach{
-            item.canciones.add(it._id)
+            item.canciones.add(it._id!!)
         }
         return item
     }
@@ -66,7 +73,7 @@ class ListaService(
     suspend fun remove(lista: ListaDTO) {
         var item = DTOToItem(lista)
         //se elimina del usuario
-        var usuario = usuarioRepositorio.getById(lista.usuario._id)
+        var usuario = usuarioRepositorio.getById(lista.usuario._id!!)
         usuario?.let {
             it.listas.remove(lista._id)
             usuarioRepositorio.update(it)
@@ -90,15 +97,15 @@ class ListaService(
 
     suspend fun save(item: ListaDTO) {
         var item2 = DTOToItem(item)
-        item2.usuario = item.usuario._id
+        item2.usuario = item.usuario._id!!
         listaRepositorio.save(item2)
         item._id = item2._id
         //si la lista es nueva no tiene usuario asociado
-        var usuario = usuarioRepositorio.getById(item.usuario._id)
+        var usuario = usuarioRepositorio.getById(item.usuario._id!!)
         usuario?.let {
             //es nuevo
             if (usuario.listas.firstOrNull { it == item._id } == null) {
-                it.listas.add(item._id)
+                it.listas.add(item._id!!)
                 usuarioRepositorio.update(it)
             }
 
@@ -108,15 +115,15 @@ class ListaService(
 
     suspend fun save(item: ListaDTO, usuario: UsuarioDTO) {
         var item2 = DTOToItem(item)
-        item2.usuario = usuario._id
+        item2.usuario = usuario._id!!
         listaRepositorio.save(item2)
         item._id = item2._id
         //si la lista es nueva no tiene usuario asociado
-        var usuario = usuarioRepositorio.getById(item.usuario._id)
+        var usuario = usuarioRepositorio.getById(item.usuario._id!!)
         usuario?.let {
             //es nuevo
             if (usuario.listas.firstOrNull { it == item._id } == null) {
-                it.listas.add(item._id)
+                it.listas.add(item._id!!)
                 usuarioRepositorio.update(it)
             }
 
@@ -131,7 +138,7 @@ class ListaService(
             run {
                 //se puede mejorar, no ir a buscarlo cada usuario, sino
                 //almacenar y buscar primero en "cache"
-                var usuario = usuarioRepositorio.getById(item.usuario)
+                var usuario = usuarioRepositorio.getById(item.usuario!!)
                 if (usuario != null)
                     itemsDTO.add(this.itemToDTO(item, usuario,canciones))
             }

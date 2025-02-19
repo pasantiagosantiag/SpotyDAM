@@ -1,7 +1,11 @@
 package ies.sequeros.modelo.repositorios.mongo
 
+import com.mongodb.client.model.Aggregates
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Updates
+import ies.sequeros.modelo.dto.ListaDTO
+import ies.sequeros.modelo.dto.UsuarioDTO
 import ies.sequeros.modelo.entidades.Lista
 import ies.sequeros.modelo.entidades.Usuario
 import ies.sequeros.modelo.repositorios.AListasRepositorio
@@ -52,6 +56,42 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
         }
 
     }
+    override suspend fun getAllMongo(): List<ListaDTO> {
+          if (!mongoConnection.isOpen()) {
+            mongoConnection.conect()
+        }
+        val db = mongoConnection.getDatabase(namedatabase)
+        db?.let {
+            val collection = it.getCollection<Usuario>(colectionname)
+            var elementos = collection.aggregate<UsuarioDTO>(
+                listOf(
+                    //final String from, final String localField, final String foreignField, final String as
+                    Aggregates.lookup("canciones", "canciones", "_id", "canciones"),
+                    Aggregates.project(
+                        Projections.fields(
+                            Projections.include(
+                                Lista::_id.name,
+                                Lista::nombre.name,
+                                Lista::usuario.name,
+                                Lista::fechacreacion.name,
+                                Lista::comentario.name,
+                                Lista::portada.name,
+                                "usuario._id",
+                                "usuario.nombre",
+                                "canciones.id",
+                                "canciones.artista",
+                                "canciones.duracion"
+                            ),
+                            // Projections.excludeId()
+                        )
+                    )
+
+                )
+            ).toList()
+        }
+   return emptyList()
+    }
+
     override suspend fun getAll(): List<Lista> {
         if (!mongoConnection.isOpen()) {
             mongoConnection.conect()
@@ -66,7 +106,7 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
     }
 
     override suspend fun remove(item: Lista) {
-        this.removeById(item._id)
+        item._id?.let { this.removeById(it) }
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -148,8 +188,8 @@ class MongoListaRepositorio(private val mongoConnection: MongoConnection) : ALis
     }
 
     override suspend fun save(item: Lista) {
-        println(item._id.toString())
-       if(item._id.toString()==Lista.nuevo) {
+
+       if(item._id==null) {
            //se le pone un id nuevo
            item._id=ObjectId()
            this.add(item)
