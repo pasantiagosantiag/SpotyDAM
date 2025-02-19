@@ -33,10 +33,13 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
-            //mongo
-            //https://www.mongodb.com/docs/drivers/kotlin/coroutine/current/quick-start/
+            //serializacion
+            // https://mvnrepository.com/artifact/org.litote.kmongo/kmongo
+            implementation("org.litote.kmongo:kmongo:5.2.1")
 
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
             runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+            //mongo
             implementation("org.mongodb:mongodb-driver-kotlin-coroutine:5.3.0")
             //mongo bson
             implementation("org.mongodb:bson-kotlinx:5.3.0")
@@ -84,7 +87,9 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
-
+// https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json-jvm
+            runtimeOnly("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.8.0")
 
             //implementation("io.insert-koin:koin-core:4.0.1")
 

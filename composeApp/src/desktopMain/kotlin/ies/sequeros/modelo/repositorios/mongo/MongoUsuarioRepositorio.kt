@@ -1,13 +1,19 @@
 package ies.sequeros.modelo.repositorios.mongo
 
+import com.mongodb.client.model.Aggregates
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Projections
 import com.mongodb.client.model.Updates
 import ies.sequeros.modelo.dto.UsuarioDTO
 import ies.sequeros.modelo.entidades.Usuario
 import ies.sequeros.modelo.repositorios.AUsuarioRepositorio
 import ies.sequeros.modelo.repositorios.MongoConnection
+import kotlinx.coroutines.flow.all
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
+import kotlinx.serialization.json.JsonDecoder
+import org.bson.BsonArray
+import org.bson.BsonDocument
 import org.bson.types.ObjectId
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -15,7 +21,11 @@ import kotlin.uuid.Uuid
 class MongoUsuarioRepositorio(private val mongoConnection: MongoConnection) : AUsuarioRepositorio() {
     private val namedatabase = "damplaymusic"
     private val colectionname = "usuarios"
+
+
+
     override suspend fun getAll(): List<Usuario> {
+
         if (!mongoConnection.isOpen()) {
             mongoConnection.conect()
         }
@@ -47,7 +57,70 @@ class MongoUsuarioRepositorio(private val mongoConnection: MongoConnection) : AU
         }
     }
 
+    /**
+     * devuelve el dto usando agregaciones
+     *
+     */
 
+    suspend override fun getAllUsuarioMongo(): List<UsuarioDTO>{ //List<BsonDocument> {
+        if (!mongoConnection.isOpen()) {
+            mongoConnection.conect()
+        }
+        val db = mongoConnection.getDatabase(namedatabase)
+        db?.let {
+            val collection = it.getCollection<Usuario>(colectionname)
+            var elementos =  collection.aggregate<UsuarioDTO>(
+                listOf(
+                    //final String from, final String localField, final String foreignField, final String as
+                    Aggregates.lookup("listas", "_id", "usuario", "listas"),
+                    Aggregates.project(
+                        Projections.fields(
+                            Projections.include(
+                                Usuario::_id.name,
+                                Usuario::password.name,
+                                Usuario::fechaalta.name,
+                                Usuario::ultimaconexion.name,
+                                Usuario::avatar.name,
+                                Usuario::nombre.name,
+
+                                "listas._id",
+                                "listas.nombre",
+                                "listas.portada"
+                            ),
+                           // Projections.excludeId()
+                        )
+                    )
+
+                )
+            ).toList()
+            /*var elementos = collection.aggregate<BsonDocument>(
+                listOf(
+                    //final String from, final String localField, final String foreignField, final String as
+                    Aggregates.lookup("listas", "_id", "usuario", "listas"),
+                    Aggregates.project(
+                        Projections.fields(
+                            Projections.include(
+                                Usuario::_id.name,
+                                Usuario::password.name,
+                                Usuario::fechaalta.name,
+                                Usuario::ultimaconexion.name,
+                                Usuario::avatar.name,
+                                Usuario::nombre.name,
+
+                                "listas._id",
+                                "listas.nombre",
+                                "listas.portada"
+                            ),
+                           // Projections.excludeId()
+                        )
+                    )
+
+                )
+            ).toList()*/
+        return  elementos //emptyList()// elementos
+        }
+        return emptyList()
+    }
 
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun getById(id: ObjectId): Usuario? {
@@ -117,7 +190,7 @@ class MongoUsuarioRepositorio(private val mongoConnection: MongoConnection) : AU
     }
 
     override suspend fun save(item: Usuario) {
-       if(item._id.toString()==Usuario.nuevo) {
+       if(item._id==null) {
            //se le pone un id nuevo
            item._id=ObjectId()
            this.add(item)

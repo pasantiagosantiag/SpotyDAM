@@ -9,10 +9,18 @@ import ies.sequeros.modelo.repositorios.AListasRepositorio
 import ies.sequeros.modelo.repositorios.AUsuarioRepositorio
 import ies.sequeros.modelo.repositorios.mongo.MongoListaRepositorio
 import ies.sequeros.modelo.repositorios.mongo.MongoUsuarioRepositorio
+import org.bson.BsonArray
+import org.bson.BsonBinary
+import org.bson.BsonDocument
+import org.bson.BsonNumber
+import org.bson.BsonObjectId
+import org.bson.BsonString
+import org.bson.types.Binary
 import org.bson.types.ObjectId
+import org.litote.kmongo.MongoOperator
 
 class UsuariosService(val usuarioRepositorio: AUsuarioRepositorio, val listasRepositorio: AListasRepositorio) {
-
+    private val conAgregados=true
     private fun UsuarioToUsuarioDTO(usuario: Usuario,lista:List<Lista>): UsuarioDTO {
         var usuarioDTO = UsuarioDTO()
         usuarioDTO._id=usuario._id;
@@ -47,15 +55,23 @@ class UsuariosService(val usuarioRepositorio: AUsuarioRepositorio, val listasRep
     }
 
     suspend fun getAll(): List<UsuarioDTO> {
-        var usuarios= usuarioRepositorio.getAll()
-        var usuarioDTO= mutableListOf<UsuarioDTO>()
-        usuarios.forEach { usuario ->
-            run {
-                var listas = listasRepositorio.getByUsuario(usuario)
-                usuarioDTO.add(this.UsuarioToUsuarioDTO(usuario,listas))
+        var usuariosDTO = mutableListOf<UsuarioDTO>()
+        if(!conAgregados) {
+            var usuarios = usuarioRepositorio.getAll()
+
+            usuarios.forEach { usuario ->
+                run {
+                    var listas = listasRepositorio.getByUsuario(usuario)
+                    usuariosDTO.add(this.UsuarioToUsuarioDTO(usuario, listas))
+                }
             }
         }
-       return  usuarioDTO
+        else {
+            //se obtiene directamente de la base de datos con agregados
+            usuariosDTO= usuarioRepositorio.getAllUsuarioMongo().toMutableList()
+        }
+        return usuariosDTO
+
     }
     suspend fun getById(id: ObjectId): UsuarioDTO? {
         var usuario = usuarioRepositorio.getById(id)
@@ -86,7 +102,7 @@ class UsuariosService(val usuarioRepositorio: AUsuarioRepositorio, val listasRep
         if (usuario != null) {
             //solo se inserta sino esta en la lista
             if(usuario.listas.firstOrNull { it==lista._id }==null){
-            usuario.listas.add(lista._id)
+            usuario.listas.add(lista._id!!)
             usuarioRepositorio.save(usuario)
             }
         }
