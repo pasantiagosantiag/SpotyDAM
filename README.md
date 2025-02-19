@@ -15,7 +15,7 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
  
 ### Usuario
 
-´´´ json
+``` json
 {
   $jsonSchema: {
     bsonType: 'object',
@@ -81,10 +81,11 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
     }
   }
 }
-´´´
+```
+
 ### Lista reproducción
 
-´´´ json
+```json
 {
   $jsonSchema: {
     bsonType: 'object',
@@ -151,11 +152,11 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
     }
   }
 }
-´´´
+```
 
 ### Canción
 
-´´´ json
+``` json
 {
   $jsonSchema: {
     bsonType: 'object',
@@ -195,4 +196,4 @@ Para garantizar que los datos introducidos son correctos se definen esquemas jso
     }
   }
 }
-´´´
+```
