@@ -330,3 +330,99 @@ las colecciones, de forma similar a como se realiza en programación funcional.
     }
 
 ```
+
+### Eventos de dominio
+
+Cuando se produce una acción en un servicio, por ejemplo se añade una lista, el ViewModel de usuario se encuentra desactualizado
+ya que el usuario afectado no tiene asociada la nueva lista. Para solucionarlo se utiliza un bus de evento, la capa de negocio (servicios)
+ colocan en este bus mensajes con los cambios, que llega a los objetos que  se encuentra en el bus (en este caso los ViewModels)
+
+**Event Bus**
+
+``` kotlin
+sealed class DomainEvent {
+    data class UserDeleted(val user: Usuario) : DomainEvent()
+    data class UsuarioDeletedById(val id: ObjectId):DomainEvent()
+    data class ListaDeleted(val lista: Lista):DomainEvent()
+    data class ListaAdded(val lista: Lista): DomainEvent()
+    data class ListaUpdated(val lista: Lista): DomainEvent()
+    data class CancionDeleted(val cancion: Cancion):DomainEvent()
+    data class CancionAdded(val cancion: Cancion):DomainEvent()
+    data class CancionUpdated(val cancion: Cancion):DomainEvent()
+    data class CancionDeletedById(val id: ObjectId):DomainEvent()
+
+}
+```
+**Lanzar eventos**
+
+```kotlin
+    suspend fun save(item: Cancion) {
+        if (item._id == null) {
+            cancionRepositorio.save(item)
+            eventBus.sendEvent(DomainEvent.CancionDeleted(item))
+        } else {
+            cancionRepositorio.save(item)
+            eventBus.sendEvent(DomainEvent.CancionUpdated(item))
+        }
+    }
+```
+
+**Escuchar eventos**
+
+Se puede mejorar, filtrando sólo los eventos que interese.
+
+``` kotlin
+viewModelScope.launch {
+            eventBus.events.collect { event ->
+                when (event) {
+                    is DomainEvent.CancionAdded -> {
+                        _items.value.forEach {
+                            it.canciones.forEach {
+                                if (it._id.toString() == event.cancion._id.toString()) {
+                                    it.titulo = event.cancion.titulo
+                                    it.artista = event.cancion.artista
+                                    it.duracion = event.cancion.duracion
+                                }
+                            }
+                        }
+                    }
+                    is DomainEvent.CancionDeleted -> {
+                        _items.value.forEach {
+                            it.canciones.removeIf {
+                                it._id == event.cancion._id
+                            }
+                        }
+                    }
+                    is DomainEvent.CancionDeletedById -> {
+                        _items.value.forEach {
+                            it.canciones.removeIf {
+                                it._id == event.id
+                            }
+                        }
+                    }
+                    is DomainEvent.CancionUpdated ->
+                        _items.value.forEach {
+                            it.canciones.forEach {
+                                if (it._id == event.cancion._id) {
+                                    it.titulo = event.cancion.titulo
+                                    it.artista = event.cancion.artista
+                                    it.duracion = event.cancion.duracion
+                                }
+                            }
+                        }
+                    is DomainEvent.ListaAdded -> {}
+                    is DomainEvent.ListaDeleted -> {}
+                    is DomainEvent.ListaUpdated -> {}
+                    is DomainEvent.UserDeleted -> {
+                        _items.value.removeIf { it.usuario._id == event.user._id }
+                    }
+                    is DomainEvent.UsuarioDeletedById -> {
+                        var nueva = _items.value.toMutableList()
+                        nueva.removeIf { it.usuario._id == event.id }
+                        _items.value = mutableListOf()
+                        _items.value = nueva.toMutableList()
+                    }
+                }
+            }
+        }
+```

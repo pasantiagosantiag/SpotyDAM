@@ -19,14 +19,12 @@ class EventBus {
 sealed class DomainEvent {
     data class UserDeleted(val user: Usuario) : DomainEvent()
     data class UsuarioDeletedById(val id: ObjectId):DomainEvent()
-
     data class ListaDeleted(val lista: Lista):DomainEvent()
     data class ListaAdded(val lista: Lista): DomainEvent()
     data class ListaUpdated(val lista: Lista): DomainEvent()
     data class CancionDeleted(val cancion: Cancion):DomainEvent()
     data class CancionAdded(val cancion: Cancion):DomainEvent()
     data class CancionUpdated(val cancion: Cancion):DomainEvent()
-
     data class CancionDeletedById(val id: ObjectId):DomainEvent()
 
 }

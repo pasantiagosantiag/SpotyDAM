@@ -41,14 +41,13 @@ class CancionService(
 
     }
     suspend fun save(item: Cancion) {
-    if(item._id==null) {
-        cancionRepositorio.save(item)
-        eventBus.sendEvent(DomainEvent.CancionDeleted(item))
-    }else{
-        cancionRepositorio.save(item)
-        eventBus.sendEvent(DomainEvent.CancionUpdated(item))}
-
-
+        if (item._id == null) {
+            cancionRepositorio.save(item)
+            eventBus.sendEvent(DomainEvent.CancionDeleted(item))
+        } else {
+            cancionRepositorio.save(item)
+            eventBus.sendEvent(DomainEvent.CancionUpdated(item))
+        }
     }
     suspend fun getAll(): List<Cancion> {
         return cancionRepositorio.getAll()

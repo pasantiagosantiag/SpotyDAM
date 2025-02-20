@@ -54,7 +54,6 @@ class ListaViewModel(
                             }
                         }
                     }
-
                     is DomainEvent.CancionDeleted -> {
                         _items.value.forEach {
                             it.canciones.removeIf {
@@ -62,7 +61,6 @@ class ListaViewModel(
                             }
                         }
                     }
-
                     is DomainEvent.CancionDeletedById -> {
                         _items.value.forEach {
                             it.canciones.removeIf {
@@ -70,7 +68,6 @@ class ListaViewModel(
                             }
                         }
                     }
-
                     is DomainEvent.CancionUpdated ->
                         _items.value.forEach {
                             it.canciones.forEach {
@@ -78,33 +75,22 @@ class ListaViewModel(
                                     it.titulo = event.cancion.titulo
                                     it.artista = event.cancion.artista
                                     it.duracion = event.cancion.duracion
-
                                 }
-
                             }
                         }
-
                     is DomainEvent.ListaAdded -> {}
-                    is DomainEvent.ListaDeleted -> {
-
-                    }
-
+                    is DomainEvent.ListaDeleted -> {}
                     is DomainEvent.ListaUpdated -> {}
                     is DomainEvent.UserDeleted -> {
                         _items.value.removeIf { it.usuario._id == event.user._id }
                     }
-
                     is DomainEvent.UsuarioDeletedById -> {
                         var nueva = _items.value.toMutableList()
-
                         nueva.removeIf { it.usuario._id == event.id }
                         _items.value = mutableListOf()
                         _items.value = nueva.toMutableList()
-                        println(_items.value.size)
                     }
                 }
-
-
             }
         }
     }
